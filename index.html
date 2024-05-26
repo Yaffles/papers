@@ -188,6 +188,7 @@ window.onload = function() {
 
 function updateRecentFiles() {
     recentPapers = document.getElementById("recentPapers")
+    recentPapers.innerHTML = "<h2>Recent</h2>"
 
     let recentFiles = localStorage.getItem("recentFiles")
     if (recentFiles) {
@@ -197,7 +198,7 @@ function updateRecentFiles() {
         recentFiles = []
     }
 
-    for (let checkboxId in recentFiles) {
+    for (let checkboxId of recentFiles) {
         console.log(checkboxId)
         let original = document.getElementById(checkboxId).parentElement;
         let link = original.cloneNode(true);
