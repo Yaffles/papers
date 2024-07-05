@@ -3,9 +3,13 @@ window.onload = async function() {
     const urlParams = new URLSearchParams(window.location.search);
     const id = urlParams.get('id');
     if (id == "4U") {
+        let nav = document.getElementById("nav")
+        nav.children[1].style.backgroundColor = "#f00"
         var data = await fetchData("https://gist.githubusercontent.com/Yaffles/49f3df09cdeba2de5174639beac2eb6c/raw/4U.json")
     }
     else if (id == "3U") {
+        let nav = document.getElementById("nav")
+        nav.children[0].style.backgroundColor = "#f00"
         var data = await fetchData("https://gist.githubusercontent.com/Yaffles/49f3df09cdeba2de5174639beac2eb6c/raw/3U.json")
     }
     else {
