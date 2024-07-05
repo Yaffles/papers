@@ -26,6 +26,8 @@ window.onload = async function() {
     // console.log(data)
     createLinks(data);
 
+
+
     var inputs = document.getElementsByTagName("input");
     var checkedCount = 0;
     let visibleCount = 0;
@@ -40,10 +42,20 @@ window.onload = async function() {
     }
     updateProgressBar(checkedCount, inputs.length);
 
+
+    // Get past range from local storage else set to default
+    console.log("getting range")
+    let range = [1990, 2023];
+    let newrange = localStorage.getItem("yearRange");
+    console.log("range: ", newrange)
+    if (newrange) {
+        range = JSON.parse(newrange);
+    }
+
     // Create year range slider
     var yearRange = document.getElementById('yearRange');
     noUiSlider.create(yearRange, {
-        start: [1990, 2023], // replace with your desired start range
+        start: range, // replace with your desired start range
         connect: true,
         range: {
             'min': 1990, // replace with your desired minimum year
@@ -62,72 +74,85 @@ window.onload = async function() {
     });
 
     yearRange.noUiSlider.on('update.one', function () {
-    console.log('slider updated');
-    let range = yearRange.noUiSlider.get();
-    let minYear = parseInt(range[0]);
-    let maxYear = parseInt(range[1]);
+        console.log('slider updated');
+        let range = yearRange.noUiSlider.get();
+        let minYear = parseInt(range[0]);
+        let maxYear = parseInt(range[1]);
 
-    // Get all the link wrappers
-    let linkWrappers = document.querySelectorAll('.link-wrapper');
+        // Get all the link wrappers
+        let linkWrappers = document.querySelectorAll('.link-wrapper');
 
-    // Loop through the link wrappers
-    for (let i = 0; i < linkWrappers.length; i++) {
-        // Get the link within the wrapper
-        let link = linkWrappers[i].querySelector('a');
+        // Loop through the link wrappers
+        for (let i = 0; i < linkWrappers.length; i++) {
+            // Get the link within the wrapper
+            let link = linkWrappers[i].querySelector('a');
 
-        // Get the year from the link text
-        let year = parseInt(link.textContent);
+            // Get the year from the link text
+            let year = parseInt(link.textContent);
 
-        // If the year is not within the range, hide the wrapper
-        if (year < minYear || year > maxYear) {
-            linkWrappers[i].style.display = 'none';
-        }
-        // Otherwise, show the wrapper
-        else {
-            linkWrappers[i].style.display = '';
-        }
-    }
-
-    // hide empty schools
-    let schools = document.querySelectorAll('.school');
-    for (let i = 0; i < schools.length; i++) {
-        let school = schools[i];
-        let links = school.querySelectorAll('.link-wrapper');
-        let visibleLinks = 0;
-        for (let j = 0; j < links.length; j++) {
-            if (links[j].style.display !== 'none') {
-                visibleLinks++;
+            // If the year is not within the range, hide the wrapper
+            if (year < minYear || year > maxYear) {
+                linkWrappers[i].style.display = 'none';
+            }
+            // Otherwise, show the wrapper
+            else {
+                linkWrappers[i].style.display = '';
             }
         }
-        if (visibleLinks === 0) {
-            school.style.display = 'none';
+
+        // hide empty schools
+        let schools = document.querySelectorAll('.school');
+        for (let i = 0; i < schools.length; i++) {
+            let school = schools[i];
+            let links = school.querySelectorAll('.link-wrapper');
+            let visibleLinks = 0;
+            for (let j = 0; j < links.length; j++) {
+                if (links[j].style.display !== 'none') {
+                    visibleLinks++;
+                }
+            }
+            if (visibleLinks === 0) {
+                school.style.display = 'none';
+            }
+            else {
+                school.style.display = '';
+            }
         }
-        else {
-            school.style.display = '';
-        }
-    }
 
-    updateProgressBar();
+        updateProgressBar();
 
-    let dialog = document.getElementById("notes-popup");
-    dialog.addEventListener("close", (event) => {
-        let dialog = document.getElementById("notes-popup")
-        id = dialog.getAttribute("note-id")
+        let dialog = document.getElementById("notes-popup");
+        dialog.addEventListener("close", (event) => {
+            let dialog = document.getElementById("notes-popup")
+            id = dialog.getAttribute("note-id")
 
-        let dialogInput = document.getElementById("noteInput");
-        let noteText = dialogInput.value;
+            let dialogInput = document.getElementById("noteInput");
+            let noteText = dialogInput.value;
 
 
-        localStorage.setItem(id, noteText)
+            localStorage.setItem(id, noteText)
+        });
+
+        updateRecentFiles();
+        updateNotesIcon();
+        updateSavedRange(range);
+
     });
 
-    updateRecentFiles();
-    updateNotesIcon();
-});
+
+    function updateSavedRange(range) {
+        localStorage.setItem("yearRange", JSON.stringify(range));
+        let newrange = localStorage.getItem("yearRange");
+        console.log("range: ", newrange)
+    }
 
 
     yearRangeSlider = yearRange.noUiSlider;
+
+
+
 };
+
 
 async function fetchData(gistUrl) {
     try {
