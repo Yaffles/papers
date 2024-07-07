@@ -1,28 +1,7 @@
 var yearRangeSlider;
 window.onload = async function() {
-    const urlParams = new URLSearchParams(window.location.search);
-    const id = urlParams.get('id');
-    if (id == "4U") {
-        let nav = document.getElementById("nav")
-        nav.children[1].style.backgroundColor = "#f00"
-        var data = await fetchData("https://gist.githubusercontent.com/Yaffles/49f3df09cdeba2de5174639beac2eb6c/raw/4U.json")
-    }
-    else if (id == "3U") {
-        let nav = document.getElementById("nav")
-        nav.children[0].style.backgroundColor = "#f00"
-        var data = await fetchData("https://gist.githubusercontent.com/Yaffles/49f3df09cdeba2de5174639beac2eb6c/raw/3U.json")
-    }
-    else {
-        // enlarge the class nav's text size and centre the nav vertically
-        document.getElementById("nav").style.transform = "scale(4)";
-        document.getElementById("nav").style.marginTop = "50vh";
+    let data = await getData()
 
-        Array.from(document.body.children).forEach(element => {
-            if (element.id !== "nav") {
-                element.style.display = "none";
-            }
-        });
-    }
     // console.log(data)
     createLinks(data);
 
@@ -153,6 +132,53 @@ window.onload = async function() {
 
 };
 
+
+async function getData() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const id = urlParams.get('id');
+
+    // get password local
+    let password = localStorage.getItem("password")
+    if (!password) {
+        password = prompt("Enter password")
+        localStorage.setItem("password", password)
+    }
+
+    let url = `https://gist.githubusercontent.com/Yaffles/49f3df09cdeba2de5174639beac2eb6c/raw/${password}`
+    if (id == "4U") {
+        let nav = document.getElementById("nav")
+        nav.children[1].style.backgroundColor = "#f00"
+        url += "4U.json"
+    }
+    else if (id == "3U") {
+        let nav = document.getElementById("nav")
+        nav.children[0].style.backgroundColor = "#f00"
+        url += "3U.json"
+
+    }
+    else {
+        // enlarge the class nav's text size and centre the nav vertically
+        document.getElementById("nav").style.transform = "scale(4)";
+        document.getElementById("nav").style.marginTop = "50vh";
+
+        Array.from(document.body.children).forEach(element => {
+            if (element.id !== "nav") {
+                element.style.display = "none";
+            }
+        });
+        return null;
+    }
+
+    var data = await fetchData(url);
+    if (data) {
+        return data
+    }
+    else {
+        localStorage.removeItem("password")
+        return getData()
+    }
+
+}
 
 async function fetchData(gistUrl) {
     try {
