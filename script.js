@@ -227,24 +227,33 @@ function groupFilesBySchool(ipfs) {
       }
     });
 
+    // Sort by school name alphabetically
+    Object.keys(filesBySchool).sort().forEach((schoolName) => {
+      filesBySchool[schoolName] = filesBySchool[schoolName].sort();
+    });
+
     return filesBySchool;
   }
 
-function createLinks(ipfs) {
+  function createLinks(ipfs) {
     filesBySchool = groupFilesBySchool(ipfs);
 
     let htmlContent = '';
 
-    Object.entries(filesBySchool).forEach(([school, schoolFiles]) => {
+    // Sort school names alphabetically
+    const sortedSchoolNames = Object.keys(filesBySchool).sort();
+
+    sortedSchoolNames.forEach((school) => {
+        const schoolFiles = filesBySchool[school];
         htmlContent += `<div class="school">\n<h2>${school}</h2>\n`;
         schoolFiles.forEach((file, i) => {
-        const yearMatch = file.match(/\b\d{4}\b/);
-        const year = yearMatch ? yearMatch[0] : 'Unknown Year';
-        const checkboxId = `3U-checkbox_${school}_${i}`;
-        const noteId = `3U-notes_${school}_${i}`;
-        const ipfsLink = `https://${ipfs[file]}.ipfs.nftstorage.link/`;
+            const yearMatch = file.match(/\b\d{4}\b/);
+            const year = yearMatch ? yearMatch[0] : 'Unknown Year';
+            const checkboxId = `3U-checkbox_${school}_${i}`;
+            const noteId = `3U-notes_${school}_${i}`;
+            const ipfsLink = `https://${ipfs[file]}.ipfs.nftstorage.link/`;
 
-        htmlContent += `<div class="link-wrapper"><input type="checkbox" id="${checkboxId}" onclick="updateStorage('${checkboxId}')"><button id="${noteId}" class="noteButton" onclick="openNote('${noteId}')">📄</button> <a onclick="addRecent('${checkboxId}')" href="${ipfsLink}" target="_blank">${year}</a></div>\n`;
+            htmlContent += `<div class="link-wrapper"><input type="checkbox" id="${checkboxId}" onclick="updateStorage('${checkboxId}')"><button id="${noteId}" class="noteButton" onclick="openNote('${noteId}')">📄</button> <a onclick="addRecent('${checkboxId}')" href="${ipfsLink}" target="_blank">${year}</a></div>\n`;
         });
         htmlContent += '</div>\n';
     });
