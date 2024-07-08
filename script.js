@@ -289,13 +289,15 @@ function updateRecentFiles() {
         console.log(checkboxId)
         try {
             let original = document.getElementById(checkboxId).parentElement;
+            let link = original.cloneNode(true);
+
+            recentPapers.appendChild(link)
         }
         catch (e) {
-            continue // skip if the checkbox is not found
+            // skip current iteration
+            continue;
         }
-        let link = original.cloneNode(true);
 
-        recentPapers.appendChild(link)
     }
 }
 
