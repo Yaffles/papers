@@ -109,12 +109,20 @@ window.onload = async function() {
             let noteText = dialogInput.value;
 
 
-            localStorage.setItem(id, noteText)
+            if (noteText === "") {
+                localStorage.removeItem(id)
+            }
+            else {
+                localStorage.setItem(id, noteText)
+            }
+
+            updateNotesIcon();
         });
 
         updateRecentFiles();
-        updateNotesIcon();
+
         updateSavedRange(range);
+        updateNotesIcon();
 
     });
 
@@ -243,14 +251,17 @@ function groupFilesBySchool(ipfs) {
     // Sort school names alphabetically
     const sortedSchoolNames = Object.keys(filesBySchool).sort();
 
+    const urlParams = new URLSearchParams(window.location.search);
+    const id = urlParams.get('id');
+
     sortedSchoolNames.forEach((school) => {
         const schoolFiles = filesBySchool[school];
         htmlContent += `<div class="school">\n<h2>${school}</h2>\n`;
         schoolFiles.forEach((file, i) => {
             const yearMatch = file.match(/\b\d{4}\b/);
             const year = yearMatch ? yearMatch[0] : 'Unknown Year';
-            const checkboxId = `3U-checkbox_${school}_${i}`;
-            const noteId = `3U-notes_${school}_${i}`;
+            const checkboxId = `${id}-checkbox_${school}_${i}`;
+            const noteId = `${id}-notes_${school}_${i}`;
             const ipfsLink = `https://${ipfs[file]}.ipfs.nftstorage.link/`;
 
             htmlContent += `<div class="link-wrapper"><input type="checkbox" id="${checkboxId}" onclick="updateStorage('${checkboxId}')"><button id="${noteId}" class="noteButton" onclick="openNote('${noteId}')">📄</button> <a onclick="addRecent('${checkboxId}')" href="${ipfsLink}" target="_blank">${year}</a></div>\n`;
@@ -276,7 +287,12 @@ function updateRecentFiles() {
 
     for (let checkboxId of recentFiles) {
         console.log(checkboxId)
-        let original = document.getElementById(checkboxId).parentElement;
+        try {
+            let original = document.getElementById(checkboxId).parentElement;
+        }
+        catch (e) {
+            continue // skip if the checkbox is not found
+        }
         let link = original.cloneNode(true);
 
         recentPapers.appendChild(link)
@@ -303,6 +319,7 @@ function addRecent(checkboxId) {
 }
 
 function updateNotesIcon() {
+    console.log("updating notes icon")
     let notes = document.getElementsByClassName("noteButton")
     for (let i = 0; i < notes.length; i++) {
         note = notes[i]
@@ -310,6 +327,9 @@ function updateNotesIcon() {
 
         if (localStorage.getItem(id)) {
             note.innerText = "📜"
+        }
+        else {
+            note.innerText = "📄"
         }
     }
 }
