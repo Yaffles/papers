@@ -388,8 +388,9 @@ function groupFilesBySchool(ipfs) {
             const year = yearMatch ? yearMatch[0] : 'Unknown Year';
             const checkboxId = `${id}-checkbox_${school}_${i}`;
             const noteId = `${id}-notes_${school}_${i}`;
-            const ipfsLink = `https://${ipfs[file]}.ipfs.nftstorage.link/`;
-
+            // const ipfsLink = `https://${ipfs[file]}.ipfs.nftstorage.link/`;
+            // const ipfsLink = `https://ipfs.io/ipfs/${ipfs[file]}/`;
+            const ipfsLink = `./${id}/${file}`;
             htmlContent += `<div class="link-wrapper"><input type="checkbox" id="${checkboxId}" onclick="updateStorage('${checkboxId}')"><button id="${noteId}" class="noteButton" onclick="openNote('${noteId}')">📄</button> <a onclick="addRecent('${checkboxId}')" href="${ipfsLink}" target="_blank">${year}</a></div>\n`;
         });
         htmlContent += '</div>\n';
