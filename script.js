@@ -119,7 +119,7 @@ window.onload = async function() {
             updateNotesIcon();
         });
 
-        updateRecentFiles();
+        // updateRecentFiles();
 
         updateSavedRange(range);
         updateNotesIcon();
@@ -444,7 +444,7 @@ function addRecent(checkboxId) {
     }
 
     localStorage.setItem("recentFiles", JSON.stringify(recentFiles))
-    updateRecentFiles()
+    // updateRecentFiles()
 }
 
 function updateNotesIcon() {
