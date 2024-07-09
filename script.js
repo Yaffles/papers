@@ -127,6 +127,7 @@ window.onload = async function() {
     });
 
 
+
     function updateSavedRange(range) {
         localStorage.setItem("yearRange", JSON.stringify(range));
         let newrange = localStorage.getItem("yearRange");
@@ -137,8 +138,133 @@ window.onload = async function() {
     yearRangeSlider = yearRange.noUiSlider;
 
 
+    document.getElementById('signInBtn').addEventListener('click', async () => {
+        const username = prompt('Please enter your username:');
+        if (!username) return; // Exit if no username is entered
 
+
+
+
+        let gist = await getGist(username);
+        if (gist !== null) {
+            // If local or remote data is newer, use that
+            let remoteData = gist;
+            let localData = localStorage
+            console.log("remote: ", remoteData)
+            console.log("local: ", localData)
+            console.log("remote length: ", Object.keys(remoteData).length)
+            console.log("local length: ", localData.length)
+            if (localData.length > Object.keys(remoteData).length) {
+                console.log("local is newer")
+                updateGist(username, JSON.stringify(localData));
+            }
+            else {
+                console.log("remote is newer")
+                localStorage.clear();
+                for (let key in remoteData) {
+                    localStorage.setItem(key, remoteData[key]);
+                }
+                // reload page
+            }
+
+            console.log(content);
+        }
+        else {
+            console.log("Creating new Gist")
+            updateGist(username, JSON.stringify(localStorage));
+        }
+
+    });
+
+    document.getElementById('localSourceBtn').addEventListener('click', () => {
+        // Changes the external file source to local folder
+        // open the dialog box
+        let dialog = document.getElementById("source-popup");
+        dialog.showModal();
+
+    });
+
+    document.getElementById('fileInput').addEventListener('change', function(e) {
+        // Update the label based on the number of files selected
+        const files = e.target.files;
+        const directories = {};
+
+        // Iterate through the files and organize them by directory
+        for (const file of files) {
+            // Assuming the file path is available (it usually isn't due to security reasons)
+            // This is more illustrative than practical, as `file.webkitRelativePath` should be used
+            const path = file.webkitRelativePath || file.name;
+            console.log(path); // Log the path, but in practice, this might not give you the directory structure
+
+            const directory = path.substring(path.indexOf('/')+1, path.lastIndexOf('/'));
+            if (!directories[directory]) {
+                directories[directory] = [];
+            }
+            directories[directory].push(file.name);
+        }
+
+        // Now, directories object contains an array of files for each directory
+        console.log(directories);
+
+        // If directories with name Extension 1 and Extension 2 exist display the amount of files in each of them
+        if (directories['Extension 1'] && directories['Extension 2']) {
+            console.log('Extension 1:', directories['Extension 1'].length, 'files');
+            console.log('Extension 2:', directories['Extension 2'].length, 'files');
+
+
+        }
+        const path = e.target.value;
+        console.log(path)
+      });
 };
+
+function filePathChange() {
+    let filePath = document.getElementById('filePathInput').value;
+    console.log(filePath);
+    let testLink = document.getElementById('testLink');
+    testLink.href = filePath + "\\Extension 1\\Abbotsleigh 2023 3U Trials & Solutions.pdf";
+    testLink.style.display = 'block';
+}
+
+async function updateGist(username, content) {
+    const token = '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'; // Securely manage this token
+    const gistId = '49f3df09cdeba2de5174639beac2eb6c'; // Securely manage this Gist ID
+    const response = await fetch('https://api.github.com/gists/49f3df09cdeba2de5174639beac2eb6c', {
+      method: 'PATCH',
+      headers: {
+        'Authorization': `token ${token}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        files: {
+          [`${username}.json`]: {
+            content: content,
+          },
+        },
+      }),
+    });
+
+    if (response.ok) {
+      const data = await response.json();
+      console.log('Gist created:', data.html_url);
+    } else {
+      console.error('Failed to create Gist:', response.statusText);
+    }
+  };
+
+
+async function getGist(username) {
+    const token = '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'; // Securely manage this token
+    const response = await fetch(`https://gist.githubusercontent.com/Yaffles/49f3df09cdeba2de5174639beac2eb6c/raw/${username}.json`);
+    if (response.ok) {
+        const gist = await response.json();
+        console.log('Gist retrieved:', gist);
+        return gist; // Returns the Gist object
+    } else {
+        console.error('Failed to retrieve Gist:', response.statusText);
+        return null; // Indicates failure
+    }
+}
 
 
 async function getData() {
@@ -154,12 +280,12 @@ async function getData() {
 
     let url = `https://gist.githubusercontent.com/Yaffles/49f3df09cdeba2de5174639beac2eb6c/raw/${password}`
     if (id == "4U") {
-        let nav = document.getElementById("nav")
+        let nav = document.getElementById("navLinks")
         nav.children[1].style.backgroundColor = "#f00"
         url += "4U.json"
     }
     else if (id == "3U") {
-        let nav = document.getElementById("nav")
+        let nav = document.getElementById("navLinks")
         nav.children[0].style.backgroundColor = "#f00"
         url += "3U.json"
 

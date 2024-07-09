@@ -10,8 +10,12 @@
 </head>
 <body>
 <div id="nav">
-    <a onclick="addRecent('3U-checkbox_Ascham_0')" href="./?id=3U">3U</a>
-    <a onclick="addRecent('3U-checkbox_Ascham_0')" href="./?id=4U">4U</a>
+    <button id="localSourceBtn">Local Source</button>
+    <div id="navLinks">
+        <a href="./?id=3U">3U</a>
+        <a href="./?id=4U">4U</a>
+    </div>
+    <button id="signInBtn">Sign In</button>
 </div>
 <div id="yearRange"></div>
 <div id="progressBar"><div id="progressBarInner"></div></div>
@@ -20,6 +24,19 @@
     <button class="close-button" onclick="document.getElementById('notes-popup').close();">X</button>
     <h2 id="dialogTitle"></h2>
     <textarea type="text" name="noteInput" id="noteInput"></textarea>
+</dialog>
+<dialog id="source-popup">
+    <button class="close-button" onclick="document.getElementById('source-popup').close();">X</button>
+    <h2 id="dialogTitle">Change source directory for files</h2>
+    <div>The directory including "Extension 1" and "Extension 2" folder <a href="./ ">available here</a></div>
+    <!-- folder picker -->
+    <input type="file" id="fileInput" webkitdirectory style="display: none;">
+    <button id="customButton" onclick="document.getElementById('fileInput').click();">Find folder path</button>
+    <span id="fileLabel"></span>
+    <input type="text" id="filePathInput" onchange="filePathChange()" placeholder="C:\Users\Name\Documents\Maths\past" style="width: 50%;">
+    <div class="link-wrapper">
+        <a href="/" id="testLink" target="_blank" style="display: none; width: 50px;">Test link</a>
+    </div>
 </dialog>
 <div class="school" id="recentPapers">
     <h2>Recent</h2>
