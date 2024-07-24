@@ -80,23 +80,7 @@ window.onload = async function() {
         }
 
         // hide empty schools
-        let schools = document.querySelectorAll('.school');
-        for (let i = 0; i < schools.length; i++) {
-            let school = schools[i];
-            let links = school.querySelectorAll('.link-wrapper');
-            let visibleLinks = 0;
-            for (let j = 0; j < links.length; j++) {
-                if (links[j].style.display !== 'none') {
-                    visibleLinks++;
-                }
-            }
-            if (visibleLinks === 0) {
-                school.style.display = 'none';
-            }
-            else {
-                school.style.display = '';
-            }
-        }
+        hideEmptySchools();
 
         updateProgressBar();
 
@@ -119,7 +103,7 @@ window.onload = async function() {
             updateNotesIcon();
         });
 
-        // updateRecentFiles();
+        updateRecentFiles();
 
         updateSavedRange(range);
         updateNotesIcon();
@@ -176,13 +160,13 @@ window.onload = async function() {
 
     });
 
-    document.getElementById('localSourceBtn').addEventListener('click', () => {
-        // Changes the external file source to local folder
-        // open the dialog box
-        let dialog = document.getElementById("source-popup");
-        dialog.showModal();
+    // document.getElementById('localSourceBtn').addEventListener('click', () => {
+    //     // Changes the external file source to local folder
+    //     // open the dialog box
+    //     let dialog = document.getElementById("source-popup");
+    //     dialog.showModal();
 
-    });
+    // });
 
     document.getElementById('fileInput').addEventListener('change', function(e) {
         // Update the label based on the number of files selected
@@ -217,6 +201,26 @@ window.onload = async function() {
         console.log(path)
       });
 };
+
+function hideEmptySchools() {
+    let schools = document.querySelectorAll('.school');
+        for (let i = 0; i < schools.length; i++) {
+            let school = schools[i];
+            let links = school.querySelectorAll('.link-wrapper');
+            let visibleLinks = 0;
+            for (let j = 0; j < links.length; j++) {
+                if (links[j].style.display !== 'none') {
+                    visibleLinks++;
+                }
+            }
+            if (visibleLinks === 0) {
+                school.style.display = 'none';
+            }
+            else {
+                school.style.display = '';
+            }
+        }
+}
 
 function filePathChange() {
     let filePath = document.getElementById('filePathInput').value;
@@ -291,16 +295,23 @@ async function getData() {
 
     }
     else {
-        // enlarge the class nav's text size and centre the nav vertically
-        document.getElementById("nav").style.transform = "scale(4)";
-        document.getElementById("nav").style.marginTop = "50vh";
+        // Enlarge the class nav's text size and center the nav vertically
+    document.getElementById("nav").style.fontSize = "3rem";  // Adjust font size as needed
+    document.getElementById("nav").style.position = "absolute";
+    document.getElementById("nav").style.top = "50%";
+    document.getElementById("nav").style.left = "50%";
+    document.getElementById("nav").style.transform = "translate(-50%, -50%)";
+    document.getElementById("nav").style.display = "flex";
+    document.getElementById("nav").style.justifyContent = "center";
+    document.getElementById("nav").style.alignItems = "center";
+    document.getElementById("navLinks").style.scale = 6;
 
-        Array.from(document.body.children).forEach(element => {
-            if (element.id !== "nav") {
-                element.style.display = "none";
-            }
-        });
-        return null;
+    Array.from(document.body.children).forEach(element => {
+        if (element.id !== "nav") {
+            element.style.visibility = "hidden";
+        }
+    });
+    return null;
     }
 
     var data = await fetchData(url);
@@ -404,7 +415,10 @@ function updateRecentFiles() {
     recentPapers = document.getElementById("recentPapers")
     recentPapers.innerHTML = "<h2>Recent</h2>"
 
-    let recentFiles = localStorage.getItem("recentFiles")
+    const urlParams = new URLSearchParams(window.location.search);
+    const id = urlParams.get('id');
+
+    let recentFiles = localStorage.getItem(`recentFiles${id}`)
     if (recentFiles) {
         recentFiles = JSON.parse(recentFiles)
     }
@@ -417,19 +431,111 @@ function updateRecentFiles() {
         try {
             let original = document.getElementById(checkboxId).parentElement;
             let link = original.cloneNode(true);
+            let year = link.querySelector("a").innerText;
+            let school = original.parentElement.firstElementChild.innerText;
 
+            link.querySelector("a").innerText = school + " - " + year
+
+            console.log(link)
             recentPapers.appendChild(link)
         }
         catch (e) {
             // skip current iteration
+            console.log(e)
             continue;
         }
+    }
+    hideEmptySchools();
+}
 
+async function downloadGitHubFolder() {
+    const owner = 'Yaffles';
+    const repo = 'papers';
+    const zip = new JSZip();
+
+    let button = document.getElementById("localSourceBtn");
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const path = urlParams.get('id');
+
+
+    try {
+        // Fetch the contents of the folder
+        const contentsUrl = `https://api.github.com/repos/${owner}/${repo}/contents/${path}`;
+        console.log(contentsUrl)
+        const response = await fetch(contentsUrl);
+        console.log(response)
+        const files = await response.json();
+        console.log(files)
+
+        for (const file of files) {
+            if (file.type === 'file' && file.download_url) {
+                const fileResponse = await fetch(file.download_url);
+                const blob = await fileResponse.blob();
+                const arrayBuffer = await blob.arrayBuffer();
+                zip.file(file.name, arrayBuffer);
+            }
+            // update the button progress
+            button.innerText = `${Math.round((files.indexOf(file) / files.length) * 100)}%`
+        }
+
+        // Generate the ZIP file and trigger download
+        zip.generateAsync({ type: 'blob' }).then((content) => {
+            saveAs(content, `${folderPath.split('/').pop()}.zip`);
+        });
+
+        alert('Files downloaded successfully!');
+    } catch (error) {
+        console.error('Error downloading folder:', error);
+    }
+}
+
+async function downloadGitHubFolderAsZip() {
+    const owner = 'yaffles';
+    const repo = 'papers';
+    const folderPath = '4U';
+    const zip = new JSZip();
+
+    try {
+        // Fetch the contents of the folder
+        const contentsUrl = `https://api.github.com/repos/${owner}/${repo}/contents/${folderPath}`;
+        const response = await fetch(contentsUrl);
+        const files = await response.json();
+
+        // Create an array of promises for downloading files
+        const downloadPromises = files.map(file => {
+            if (file.type === 'file' && file.download_url) {
+                return fetch(file.download_url)
+                    .then(fileResponse => fileResponse.blob())
+                    .then(blob => blob.arrayBuffer())
+                    .then(arrayBuffer => {
+                        zip.file(file.name, arrayBuffer);
+                        console.log(`Downloaded: ${file.name}`);
+                    });
+            } else {
+                console.log(`Skipped: ${file.name} (type: ${file.type})`);
+                return Promise.resolve();
+            }
+        });
+
+        // Wait for all downloads to complete
+        await Promise.all(downloadPromises);
+        console.log('All files downloaded!');
+
+        // Generate the ZIP file and trigger download
+        const zipContent = await zip.generateAsync({ type: 'blob' });
+        saveAs(zipContent, `${folderPath.split('/').pop()}.zip`);
+        console.log('ZIP file generated and saved!');
+    } catch (error) {
+        console.error('Error downloading folder:', error);
     }
 }
 
 function addRecent(checkboxId) {
-    let recentFiles = localStorage.getItem("recentFiles")
+    const urlParams = new URLSearchParams(window.location.search);
+    const id = urlParams.get('id');
+
+    let recentFiles = localStorage.getItem(`recentFiles${id}`)
     if (recentFiles) {
         recentFiles = JSON.parse(recentFiles)
     }
@@ -437,14 +543,18 @@ function addRecent(checkboxId) {
         recentFiles = []
     }
 
-    recentFiles.push(checkboxId)
+    if (recentFiles.includes(checkboxId)) {
+        recentFiles = recentFiles.filter(e => e !== checkboxId)
+    }
+    // add to the start of the list
+    recentFiles.unshift(checkboxId)
     console.log(recentFiles + " added")
-    if (recentFiles.length > 10) {
-        recentFiles.shift()
+    while (recentFiles.length > 5) {
+        recentFiles.unshift()
     }
 
-    localStorage.setItem("recentFiles", JSON.stringify(recentFiles))
-    // updateRecentFiles()
+    localStorage.setItem(`recentFiles${id}`, JSON.stringify(recentFiles))
+    updateRecentFiles()
 }
 
 function updateNotesIcon() {
@@ -502,7 +612,7 @@ function openNote(id) {
 
 
 function updateProgressBar() {
-    var inputs = document.getElementsByTagName("input");
+    var inputs = document.querySelector("#content").getElementsByTagName("input");
     var checkedCount = 0;
     var visibleCount = 0;
     for (var i = 0; i < inputs.length; i++) {

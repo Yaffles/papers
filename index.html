@@ -6,6 +6,8 @@
 <!-- link to style -->
 <link rel="stylesheet" type="text/css" href="style.css">
 <!-- link to script -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.7.1/jszip.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
 <script src="script.js"></script>
 <!-- icon -->
 <link rel="icon" href="icon.ico" type="image/x-icon">
@@ -14,7 +16,7 @@
 </head>
 <body>
 <div id="nav">
-    <button id="localSourceBtn">Local Source</button>
+    <button id="localSourceBtn" onclick="downloadGitHubFolder()">Local Source</button>
     <div id="navLinks">
         <a href="./?id=3U">3U</a>
         <a href="./?id=4U">4U</a>
