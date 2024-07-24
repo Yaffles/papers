@@ -295,8 +295,6 @@ async function getData() {
 
     }
     else {
-        // Enlarge the class nav's text size and center the nav vertically
-    document.getElementById("nav").style.fontSize = "3rem";  // Adjust font size as needed
     document.getElementById("nav").style.position = "absolute";
     document.getElementById("nav").style.top = "50%";
     document.getElementById("nav").style.left = "50%";
