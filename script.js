@@ -429,6 +429,9 @@ function updateRecentFiles() {
         try {
             let original = document.getElementById(checkboxId).parentElement;
             let link = original.cloneNode(true);
+            // remove the checkbox from only the clone
+            link.querySelector("input").remove();
+
             let year = link.querySelector("a").innerText;
             let school = original.parentElement.firstElementChild.innerText;
 
