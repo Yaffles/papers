@@ -551,7 +551,7 @@ function addRecent(checkboxId) {
     recentFiles.unshift(checkboxId)
     console.log(recentFiles + " added")
     while (recentFiles.length > 5) {
-        recentFiles.unshift()
+        recentFiles.pop()
     }
 
     localStorage.setItem(`recentFiles${id}`, JSON.stringify(recentFiles))
