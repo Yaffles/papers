@@ -23,8 +23,9 @@ window.onload = async function() {
 
 
     // Get past range from local storage else set to default
+    currentYear = new Date().getFullYear();
     console.log("getting range")
-    let range = [1990, 2023];
+    let range = [1990, currentYear];
     let newrange = localStorage.getItem("yearRange");
     console.log("range: ", newrange)
     if (newrange) {
@@ -33,12 +34,13 @@ window.onload = async function() {
 
     // Create year range slider
     var yearRange = document.getElementById('yearRange');
+
     noUiSlider.create(yearRange, {
         start: range, // replace with your desired start range
         connect: true,
         range: {
             'min': 1990, // replace with your desired minimum year
-            'max': 2023  // replace with your desired maximum year
+            'max': currentYear // replace with your desired maximum year
         },
         tooltips: [
             { to: function(value) { return '' + value; } },
