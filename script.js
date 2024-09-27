@@ -192,13 +192,7 @@ window.onload = async function() {
         // Now, directories object contains an array of files for each directory
         console.log(directories);
 
-        // If directories with name Extension 1 and Extension 2 exist display the amount of files in each of them
-        if (directories['Extension 1'] && directories['Extension 2']) {
-            console.log('Extension 1:', directories['Extension 1'].length, 'files');
-            console.log('Extension 2:', directories['Extension 2'].length, 'files');
 
-
-        }
         const path = e.target.value;
         console.log(path)
       });
@@ -224,13 +218,7 @@ function hideEmptySchools() {
         }
 }
 
-function filePathChange() {
-    let filePath = document.getElementById('filePathInput').value;
-    console.log(filePath);
-    let testLink = document.getElementById('testLink');
-    testLink.href = filePath + "\\Extension 1\\Abbotsleigh 2023 3U Trials & Solutions.pdf";
-    testLink.style.display = 'block';
-}
+
 
 async function updateGist(username, content) {
     const token = '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'; // Securely manage this token
@@ -284,17 +272,37 @@ async function getData() {
         localStorage.setItem("password", password)
     }
 
-    let url = `https://gist.githubusercontent.com/Yaffles/49f3df09cdeba2de5174639beac2eb6c/raw/${password}`
-    if (id == "4U") {
-        let nav = document.getElementById("navLinks")
-        nav.children[1].style.backgroundColor = "#f00"
-        url += "4U.json"
-    }
-    else if (id == "3U") {
-        let nav = document.getElementById("navLinks")
-        nav.children[0].style.backgroundColor = "#f00"
-        url += "3U.json"
 
+    let url = `https://gist.githubusercontent.com/Yaffles/49f3df09cdeba2de5174639beac2eb6c/raw/${password}`
+
+    var data = await fetch(url+".json");
+    // data is a list of subjects (string)
+    if (data.ok) {
+        console.log("Password correct");
+        subjectList = await data.json();
+        for (let subject of subjectList) {
+            let nav = document.getElementById("navLinks");
+            let link = document.createElement("a");
+            link.href = `?id=${subject}`;
+            link.innerText = subject;
+            nav.appendChild(link);
+        }
+    }
+    else {
+        console.log("Password incorrect");
+        localStorage.removeItem("password");
+        return getData();
+    }
+    let nav = document.getElementById("navLinks");
+    let childrenArray = Array.from(nav.children);
+
+    // Find the index of the child whose inner text matches the id
+    let index = childrenArray.findIndex(child => child.textContent.trim() === id);
+
+    // If a match is found, apply the background color
+    if (index !== -1) {
+        childrenArray[index].style.backgroundColor = "#f00";
+        url += `${id}.json`;  // Use the id to append to the URL
     }
     else {
     document.getElementById("nav").style.position = "absolute";
@@ -488,47 +496,6 @@ async function downloadGitHubFolder() {
         });
 
         alert('Files downloaded successfully!');
-    } catch (error) {
-        console.error('Error downloading folder:', error);
-    }
-}
-
-async function downloadGitHubFolderAsZip() {
-    const owner = 'yaffles';
-    const repo = 'papers';
-    const folderPath = '4U';
-    const zip = new JSZip();
-
-    try {
-        // Fetch the contents of the folder
-        const contentsUrl = `https://api.github.com/repos/${owner}/${repo}/contents/${folderPath}`;
-        const response = await fetch(contentsUrl);
-        const files = await response.json();
-
-        // Create an array of promises for downloading files
-        const downloadPromises = files.map(file => {
-            if (file.type === 'file' && file.download_url) {
-                return fetch(file.download_url)
-                    .then(fileResponse => fileResponse.blob())
-                    .then(blob => blob.arrayBuffer())
-                    .then(arrayBuffer => {
-                        zip.file(file.name, arrayBuffer);
-                        console.log(`Downloaded: ${file.name}`);
-                    });
-            } else {
-                console.log(`Skipped: ${file.name} (type: ${file.type})`);
-                return Promise.resolve();
-            }
-        });
-
-        // Wait for all downloads to complete
-        await Promise.all(downloadPromises);
-        console.log('All files downloaded!');
-
-        // Generate the ZIP file and trigger download
-        const zipContent = await zip.generateAsync({ type: 'blob' });
-        saveAs(zipContent, `${folderPath.split('/').pop()}.zip`);
-        console.log('ZIP file generated and saved!');
     } catch (error) {
         console.error('Error downloading folder:', error);
     }
