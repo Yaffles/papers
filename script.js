@@ -264,6 +264,11 @@ async function getGist(username) {
 async function getData() {
     const urlParams = new URLSearchParams(window.location.search);
     const id = urlParams.get('id');
+    // change title to id
+    if (id) {
+        document.title = id + " - Papers";
+    }
+
 
     // get password local
     let password = localStorage.getItem("password")
