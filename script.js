@@ -124,43 +124,43 @@ window.onload = async function() {
     yearRangeSlider = yearRange.noUiSlider;
 
 
-    document.getElementById('signInBtn').addEventListener('click', async () => {
-        const username = prompt('Please enter your username:');
-        if (!username) return; // Exit if no username is entered
+    // document.getElementById('signInBtn').addEventListener('click', async () => {
+    //     const username = prompt('Please enter your username:');
+    //     if (!username) return; // Exit if no username is entered
 
 
 
 
-        let gist = await getGist(username);
-        if (gist !== null) {
-            // If local or remote data is newer, use that
-            let remoteData = gist;
-            let localData = localStorage
-            console.log("remote: ", remoteData)
-            console.log("local: ", localData)
-            console.log("remote length: ", Object.keys(remoteData).length)
-            console.log("local length: ", localData.length)
-            if (localData.length > Object.keys(remoteData).length) {
-                console.log("local is newer")
-                updateGist(username, JSON.stringify(localData));
-            }
-            else {
-                console.log("remote is newer")
-                localStorage.clear();
-                for (let key in remoteData) {
-                    localStorage.setItem(key, remoteData[key]);
-                }
-                // reload page
-            }
+    //     let gist = await getGist(username);
+    //     if (gist !== null) {
+    //         // If local or remote data is newer, use that
+    //         let remoteData = gist;
+    //         let localData = localStorage
+    //         console.log("remote: ", remoteData)
+    //         console.log("local: ", localData)
+    //         console.log("remote length: ", Object.keys(remoteData).length)
+    //         console.log("local length: ", localData.length)
+    //         if (localData.length > Object.keys(remoteData).length) {
+    //             console.log("local is newer")
+    //             updateGist(username, JSON.stringify(localData));
+    //         }
+    //         else {
+    //             console.log("remote is newer")
+    //             localStorage.clear();
+    //             for (let key in remoteData) {
+    //                 localStorage.setItem(key, remoteData[key]);
+    //             }
+    //             // reload page
+    //         }
 
-            console.log(content);
-        }
-        else {
-            console.log("Creating new Gist")
-            updateGist(username, JSON.stringify(localStorage));
-        }
+    //         console.log(content);
+    //     }
+    //     else {
+    //         console.log("Creating new Gist")
+    //         updateGist(username, JSON.stringify(localStorage));
+    //     }
 
-    });
+    // });
 
     // document.getElementById('localSourceBtn').addEventListener('click', () => {
     //     // Changes the external file source to local folder
@@ -169,6 +169,13 @@ window.onload = async function() {
     //     dialog.showModal();
 
     // });
+
+    document.getElementById('passwordBtn').addEventListener('click', async () => {
+        const password = prompt('Please enter your password:');
+        localStorage.setItem("password", password);
+        if (!password) return; // Exit if no password is entered
+
+    });
 
     document.getElementById('fileInput').addEventListener('change', function(e) {
         // Update the label based on the number of files selected
@@ -273,7 +280,9 @@ async function getData() {
     // get password local
     let password = localStorage.getItem("password")
     if (!password) {
-        password = prompt("Enter password")
+        password = "test"
+
+        // password = prompt("Enter password")
         localStorage.setItem("password", password)
     }
 
